@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -12,6 +13,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,6 +24,7 @@ public class MainActivity extends AppCompatActivity {
     private MyRecyclerViewAdapter mAdapter;
     private List<String> list;
     private MyStaggeredRecyclerViewAdapter adpter1;
+    private boolean isGrid = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,16 +46,25 @@ public class MainActivity extends AppCompatActivity {
         for (int i=0;i<60;i++){
             list.add("item" + i);
         }
-        //mAdapter = new MyRecyclerViewAdapter(list);
+        mAdapter = new MyRecyclerViewAdapter(list);
         adpter1 = new MyStaggeredRecyclerViewAdapter(list);
-        //mRecyclerView.setAdapter(mAdapter);
-        mRecyclerView.setAdapter(adpter1);
+        mRecyclerView.setAdapter(mAdapter);
+        //mRecyclerView.setAdapter(adpter1);
         //LayoutManager 布局摆放管理器（线性，瀑布流,Grid）
-        //mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        //mRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL,false));
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        //mRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL,false));
         // GridLayoutManager
         //mRecyclerView.setLayoutManager(new GridLayoutManager(this,3));
-        mRecyclerView.setLayoutManager(new StaggeredGridLayoutManager(3,StaggeredGridLayoutManager.VERTICAL));
+        //mRecyclerView.setLayoutManager(new StaggeredGridLayoutManager(3,StaggeredGridLayoutManager.VERTICAL));
+
+        mRecyclerView.setItemAnimator(new DefaultItemAnimator());
+        mAdapter.setOnItemClickListener(new MyRecyclerViewAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(View view, int position) {
+                Toast.makeText(MainActivity.this,"点击了："+position,Toast.LENGTH_LONG).show();
+            }
+        });
+
 
     }
 
@@ -76,5 +88,20 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    public void switchLayout(View view) {
+        if (!isGrid){
+            mRecyclerView.setLayoutManager(new GridLayoutManager(this,3));
+        }else {
+            mRecyclerView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL,false));
+        }
+        isGrid = !isGrid;
+
+    }
+
+    public void updateData(View view) {
+        mAdapter.addData(0);
+
     }
 }

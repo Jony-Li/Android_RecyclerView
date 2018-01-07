@@ -16,6 +16,7 @@ import java.util.List;
 
 public class MyRecyclerViewAdapter extends RecyclerView.Adapter{
     private List<String> list;
+    private OnItemClickListener mOnItemClickListener;
 
     MyRecyclerViewAdapter(List<String> list){
         this.list = list;
@@ -29,10 +30,20 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter{
     }
 
     @Override
-    public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+    public void onBindViewHolder(final RecyclerView.ViewHolder holder, final int position) {
         //绑定数据
         MyViewHolder viewHolder = (MyViewHolder) holder;
         viewHolder.tv.setText(list.get(position));
+        //将View自身的监听事件传递到自定义的监听接口中
+        if (mOnItemClickListener != null){
+            viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    //mOnItemClickListener.onItemClick(v,position);//position可能被复用 bug
+                    mOnItemClickListener.onItemClick(v,holder.getLayoutPosition());//
+                }
+            });
+        }
     }
 
     @Override
@@ -47,4 +58,30 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter{
             tv = view.findViewById(android.R.id.text1);
         }
     }
+
+    public void addData(int position){
+        list.add(position,"add item" + position);
+        if (position == 0){
+            //提示更新——会影响效率
+            notifyDataSetChanged();
+        }else {
+            //局部更新
+            notifyItemInserted(position);
+        }
+    }
+
+    public void deleteData(int position){
+        list.remove(position);
+        notifyItemRemoved(position);
+    }
+
+    public interface OnItemClickListener{
+        void onItemClick(View view,int position);
+    }
+
+    public void setOnItemClickListener(OnItemClickListener listener){
+        this.mOnItemClickListener = listener;
+
+    }
+
 }
